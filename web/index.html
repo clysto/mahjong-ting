@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>听牌助手</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        touch-action: manipulation;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 10px;
+      }
+      .control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 5px 0;
+      }
+      .spacer {
+        flex: 1;
+      }
+      .select-area {
+        padding: 10px 10px;
+        border: 2px solid #93989c;
+        overflow-x: auto;
+      }
+      .tile img {
+        width: 100%;
+      }
+      .tile {
+        line-height: 0;
+        user-select: none;
+        width: 50px;
+        position: relative;
+        border: 2px solid #93989c;
+        border-radius: 5px;
+        background-color: #f5f6f7;
+        display: inline-block;
+        transition: background-color 50ms ease-in-out;
+      }
+      .tile.disable {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .monospace {
+        font-family: Menlo, Monaco, Consolas, Andale Mono, lucida console, Courier New, monospace;
+        font-size: 1.2em;
+      }
+      .tile.disable:hover {
+        cursor: not-allowed;
+        opacity: 0.5;
+        background-color: #f5f6f7;
+      }
+      .tile.small {
+        width: 30px;
+        cursor: none;
+      }
+      .tile:hover {
+        cursor: pointer;
+      }
+      .select-area {
+        text-align: center;
+      }
+      .hand {
+        padding: 10px 10px;
+        border: 2px solid #93989c;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .all-tiles {
+        display: inline-grid;
+        grid-template-columns: repeat(9, 1fr);
+        column-gap: 5px;
+        row-gap: 5px;
+      }
+      td,
+      th {
+        padding: 5px 0;
+        text-align: center;
+        border: 1px solid #93989c;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 2px solid #93989c;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="select-area">
+        <div x-data class="all-tiles">
+          <template x-for="tile in $store.allTiles" :key="tile">
+            <div
+              :class="$store.handTiles.tileSelectable(tile) ? 'tile' : 'tile disable'"
+              @click="$store.handTiles.addTile(tile)"
+            >
+              <img draggable="false" :src="`images/${tile}.svg`" alt="" />
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="hand-area">
+        <div x-data class="control">
+          <span>我的手牌</span>
+          <span class="spacer"></span>
+          <button @click="$store.handTiles.clear()">清空</button>
+        </div>
+        <div class="hand" x-data>
+          <div x-show="$store.handTiles.tilesWall.length === 0" class="tile" style="opacity: 0">
+            <img draggable="false" :src="`images/白.svg`" alt="" />
+          </div>
+          <template x-for="(tile, index) in $store.handTiles.tilesWall" :key="index">
+            <div class="tile" style="margin: 2.5px" @click="$store.handTiles.removeTile(tile)">
+              <img draggable="false" :src="`images/${tile}.svg`" alt="" />
+            </div>
+          </template>
+        </div>
+      </div>
+      <template x-data x-if="$store.handTiles.tilesCount === 14">
+        <div>
+          <div x-show="$store.handTiles.checkWin">
+            <div style="margin: 5px 0">胡牌</div>
+          </div>
+          <div x-show="!$store.handTiles.checkWin">
+            <div style="margin: 5px 0">不胡</div>
+            <table x-show="$store.handTiles.suggest.length > 0">
+              <thead>
+                <tr>
+                  <th>建议出牌</th>
+                  <th>听张数量</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="[tile, count] in $store.handTiles.suggest" :key="index">
+                  <tr>
+                    <td style="line-height: 0">
+                      <div class="tile small">
+                        <img draggable="false" :src="`images/${tile}.svg`" alt="" />
+                      </div>
+                    </td>
+                    <td class="monospace">
+                      <span x-text="count"></span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </template>
+      <template x-data x-if="$store.handTiles.tilesCount === 13">
+        <div>
+          <div x-show="$store.handTiles.winTile.length > 0" style="margin: 5px 0">查听张</div>
+          <div x-show="!$store.handTiles.winTile.length > 0" style="margin: 5px 0">没有听牌</div>
+          <table x-show="$store.handTiles.winTile.length > 0">
+            <thead>
+              <tr>
+                <th>听张</th>
+                <th>数量</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="[tile, count] in $store.handTiles.winTile" :key="index">
+                <tr>
+                  <td style="line-height: 0">
+                    <div class="tile small">
+                      <img draggable="false" :src="`images/${tile}.svg`" alt="" />
+                    </div>
+                  </td>
+                  <td class="monospace">
+                    <span x-text="count"></span>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </template>
+    </main>
+    <script src="mahjong.js"></script>
+    <script>
+      document.addEventListener('alpine:init', () => {
+        Alpine.store('allTiles', TILES_TEXT.flat());
+        Alpine.store('handTiles', {
+          init() {
+            let hand = localStorage.getItem('hand');
+            if (hand) {
+              this.hand = JSON.parse(hand);
+            }
+          },
+          hand: Array.from({ length: 10 }, () => Array(9).fill(0)),
+          clear() {
+            this.hand = Array.from({ length: 10 }, () => Array(9).fill(0));
+            localStorage.setItem('hand', JSON.stringify(this.hand));
+          },
+          addTile(tile) {
+            let [suit, rank] = parseTile(tile);
+            if (this.hand[suit][rank] >= 4 || this.tilesCount >= 14) {
+              return;
+            }
+            this.hand[suit][rank]++;
+            localStorage.setItem('hand', JSON.stringify(this.hand));
+          },
+          removeTile(tile) {
+            let [suit, rank] = parseTile(tile);
+            this.hand[suit][rank]--;
+            localStorage.setItem('hand', JSON.stringify(this.hand));
+          },
+          get tilesWall() {
+            let wall = [];
+            for (let suit = 0; suit < 10; suit++) {
+              for (let rank = 0; rank < 9; rank++) {
+                for (let i = 0; i < this.hand[suit][rank]; i++) {
+                  wall.push(TILES_TEXT[suit][rank]);
+                }
+              }
+            }
+            return wall;
+          },
+          get tilesCount() {
+            return handCount(this.hand);
+          },
+          get winTile() {
+            return winTile(this.hand);
+          },
+          get checkWin() {
+            return checkWin(this.hand);
+          },
+          get suggest() {
+            return suggest(this.hand);
+          },
+          tileSelectable(tile) {
+            let [suit, rank] = parseTile(tile);
+            return this.hand[suit][rank] < 4 && this.tilesCount < 14;
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
