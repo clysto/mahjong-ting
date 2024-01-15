@@ -74,9 +74,6 @@ function initTables() {
 }
 
 function checkWin(hand) {
-  if (handCount(hand) !== 14) {
-    return false;
-  }
   let have3n2 = false;
   for (let s = 0; s < 10; s++) {
     const a = hand[s].join(',');
@@ -96,9 +93,6 @@ function checkWin(hand) {
 initTables();
 
 function winTile(hand) {
-  if (handCount(hand) !== 13) {
-    return [];
-  }
   let tiles = [];
   // 条 饼 万
   for (let s = 0; s < 3; s++) {
@@ -128,9 +122,6 @@ function winTile(hand) {
 }
 
 function suggest(hand) {
-  if (handCount(hand) !== 14) {
-    return {};
-  }
   let tiles = [];
   for (let s = 0; s < 10; s++) {
     for (let rank = 0; rank < 9; rank++) {
