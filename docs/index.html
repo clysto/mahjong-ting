@@ -63,6 +63,9 @@
         margin: 0 auto;
         padding: 10px;
       }
+      .wall:hover {
+        transform: translateY(-8px);
+      }
       .control {
         display: flex;
         align-items: center;
@@ -89,7 +92,7 @@
         border-radius: 5px;
         background-color: #f5f6f7;
         display: inline-block;
-        transition: background-color 50ms ease-in-out;
+        transition: 50ms ease-in-out;
       }
       .tile.disable {
         opacity: 0.5;
@@ -171,7 +174,7 @@
             <img draggable="false" :src="`images/白.svg`" alt="" />
           </div>
           <template x-for="(tile, index) in $store.handTiles.tilesWall" :key="index">
-            <div class="tile" style="margin: 2.5px" @click="$store.handTiles.removeTile(tile)">
+            <div class="tile wall" style="margin: 2.5px" @click="$store.handTiles.removeTile(tile)">
               <img draggable="false" :src="`images/${tile}.svg`" alt="" />
             </div>
           </template>
