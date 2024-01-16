@@ -171,6 +171,7 @@
         <div x-data class="control">
           <span>我的手牌</span>
           <span class="spacer"></span>
+          <button @click="$store.handTiles.undo()" style="margin-right: 5px">撤销</button>
           <button @click="$store.handTiles.clear()">清空</button>
         </div>
         <div class="hand" x-data>
@@ -276,8 +277,10 @@
           },
           hand: Array.from({ length: 10 }, () => Array(9).fill(0)),
           select: '',
+          history: [],
           clear() {
             this.hand = Array.from({ length: 10 }, () => Array(9).fill(0));
+            this.history = [];
             localStorage.setItem('hand', JSON.stringify(this.hand));
           },
           addTile(tile) {
@@ -286,12 +289,26 @@
               return;
             }
             this.hand[suit][rank]++;
+            this.history.push(['+', suit, rank]);
             localStorage.setItem('hand', JSON.stringify(this.hand));
           },
           removeTile(tile) {
             this.select = '';
             let [suit, rank] = parseTile(tile);
             this.hand[suit][rank]--;
+            this.history.push(['-', suit, rank]);
+            localStorage.setItem('hand', JSON.stringify(this.hand));
+          },
+          undo() {
+            if (this.history.length === 0) {
+              return;
+            }
+            let [action, suit, rank] = this.history.pop();
+            if (action === '+') {
+              this.hand[suit][rank]--;
+            } else {
+              this.hand[suit][rank]++;
+            }
             localStorage.setItem('hand', JSON.stringify(this.hand));
           },
           get tilesWall() {
