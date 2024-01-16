@@ -63,7 +63,7 @@
         margin: 0 auto;
         padding: 10px;
       }
-      .wall:hover {
+      .tile.select {
         transform: translateY(-8px);
       }
       .control {
@@ -177,8 +177,12 @@
           <div x-show="$store.handTiles.tilesWall.length === 0" class="tile" style="opacity: 0; margin: 2.5px">
             <img draggable="false" :src="`images/白.svg`" alt="" />
           </div>
-          <template x-for="(tile, index) in $store.handTiles.tilesWall" :key="index">
-            <div class="tile wall" style="margin: 2.5px" @click="$store.handTiles.removeTile(tile)">
+          <template x-for="[tile, key] in $store.handTiles.tilesWall" :key="key">
+            <div
+              :class="'tile' + ($store.handTiles.select === key ? ' select' : '')"
+              style="margin: 2.5px"
+              @click="$store.handTiles.select === key ? $store.handTiles.removeTile(tile) : $store.handTiles.select = key"
+            >
               <img draggable="false" :src="`images/${tile}.svg`" alt="" />
             </div>
           </template>
@@ -256,6 +260,11 @@
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min) + min);
       }
+      document.addEventListener('click', function (event) {
+        if (!event.target.closest('.tile')) {
+          Alpine.store('handTiles').select = '';
+        }
+      });
       document.addEventListener('alpine:init', () => {
         Alpine.store('allTiles', TILES_TEXT.flat());
         Alpine.store('handTiles', {
@@ -266,6 +275,7 @@
             }
           },
           hand: Array.from({ length: 10 }, () => Array(9).fill(0)),
+          select: '',
           clear() {
             this.hand = Array.from({ length: 10 }, () => Array(9).fill(0));
             localStorage.setItem('hand', JSON.stringify(this.hand));
@@ -279,6 +289,7 @@
             localStorage.setItem('hand', JSON.stringify(this.hand));
           },
           removeTile(tile) {
+            this.select = '';
             let [suit, rank] = parseTile(tile);
             this.hand[suit][rank]--;
             localStorage.setItem('hand', JSON.stringify(this.hand));
@@ -288,7 +299,7 @@
             for (let suit = 0; suit < 10; suit++) {
               for (let rank = 0; rank < 9; rank++) {
                 for (let i = 0; i < this.hand[suit][rank]; i++) {
-                  wall.push(TILES_TEXT[suit][rank]);
+                  wall.push([TILES_TEXT[suit][rank], `${suit}-${rank}-${this.hand[suit][rank] * 4 + i}`]);
                 }
               }
             }
