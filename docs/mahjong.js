@@ -66,11 +66,22 @@ function gen3n2(table) {
 }
 
 function initTables() {
-  TAB3N = new Set();
-  TAB3N2 = new Set();
-  TAB3N.add(Array(9).fill(0).join(','));
-  gen3n(Array(9).fill(0), 1, TAB3N);
-  gen3n2(TAB3N2);
+  const cachedTab3N = localStorage.getItem('TAB3N');
+  const cachedTab3N2 = localStorage.getItem('TAB3N2');
+
+  if (cachedTab3N && cachedTab3N2) {
+    TAB3N = new Set(JSON.parse(cachedTab3N));
+    TAB3N2 = new Set(JSON.parse(cachedTab3N2));
+  } else {
+    TAB3N = new Set();
+    TAB3N2 = new Set();
+    TAB3N.add(Array(9).fill(0).join(','));
+    gen3n(Array(9).fill(0), 1, TAB3N);
+    gen3n2(TAB3N2);
+
+    localStorage.setItem('TAB3N', JSON.stringify(Array.from(TAB3N)));
+    localStorage.setItem('TAB3N2', JSON.stringify(Array.from(TAB3N2)));
+  }
 }
 
 function checkWin(hand) {
