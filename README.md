@@ -6,7 +6,7 @@
 
 ## 在线体验
 
-访问 <https://clysto.github.io/mahjong> 来在线体验此工具。
+访问 <https://clysto.github.io/mahjong-ting> 来在线体验此工具。
 
 ## 功能
 
